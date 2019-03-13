@@ -1,0 +1,92 @@
+####clase hotl 13-03-19
+require (fpp2)
+a1<-window(ausair, start=1990)
+prono <- holt(a1,h=5)
+  autoplot(prono)
+
+  #####
+  prono1<- holt(a1,h=15)
+  prono2<-holt(a1, damped = T,phi=.9,h=15)
+  prono
+  autoplot(a1)+
+    autolayer(prono1,series="Holt",PI=FALSE )+
+    autolayer(prono2,series="Amortiguado Holt",PI=FALSE )+
+    ggtitle("pronosticos")+ xlab("año")+
+    ylab("pasajeros")+
+    guides(colour=guide_legend(title = "prono"))
+  
+####SES
+  prono3<-ses(a1,alpha=.7,initial="simple",h=15)
+  autoplot(a1)+
+    autolayer(prono1,series="Holt",PI=FALSE )+
+    autolayer(prono2,series="Amortiguado Holt",PI=FALSE )+
+    autolayer(prono3,series="SES",PI=FALSE )+
+    ggtitle("pronosticos")+ xlab("año")+
+    ylab("pasajeros")+
+    guides(colour=guide_legend(title = "prono"))
+  
+  help(tscv)
+  
+  e1<-tsCV(a1,ses,h=1)#arroja mis errores, primero serie, mi metodo, numero pronostico
+  e2<-tsCV(a1,holt,h=1)#
+  e3<-tsCV(a1,holt,damped=TRUE,h=1)#
+   e1#errores de ses
+ # nos vamos a quedadr con errores mas cercanos a cero
+   
+  
+   MSE:# error cuadratico medio
+   mean(e1^2,na.rm=TRUE)
+   #10.58528
+   mean(e2^2,na.rm=TRUE)
+  #6.577382 nos quedamos con este ya que es el mas pequeño
+   mean(e3^2,na.rm=TRUE)
+   # 7.386132
+  
+   
+   MAE:
+     mean(abs(e1),na.rm=TRUE)
+  #2.430085
+   mean(abs(e2),na.rm=TRUE)
+  # 1.804368#elejimos este
+   mean(abs(e3),na.rm=TRUE)
+  # 1.868162
+  
+  #########ejercicio en clase
+   
+   PIB<-read.csv("C://Users//Alumno-D3//Documents//pib1980.csv")
+   base1<- ts(PIB,start =1980 )
+   propib1<- holt(base1,h=20)
+   propib2<-holt(base1, damped = T,phi=.9,h=20)
+   propib3<-ses(base1,alpha=0.7,initial = "simple",h=20)
+     
+   autoplot(base1)+
+     autolayer(propib1,series="Holt",PI=FALSE )+
+     autolayer(propib2,series="Amortiguado Holt",PI=FALSE )+
+     autolayer(propib3,series="SES",PI=FALSE )+
+     ggtitle("pronosticos")+ xlab("año")+
+     ylab("porcentaje")+
+     guides(colour=guide_legend(title = "prono"))
+   
+   
+   a1<-tsCV(base1,ses,h=1)#arroja mis errores, primero serie, mi metodo, numero pronostico
+   a2<-tsCV(base1,holt,h=1)#
+   a3<-tsCV(base1,holt,damped=TRUE,h=1)#
+   e1#errores de ses
+   
+   MSE:# error cuadratico medio
+     mean(a1^2,na.rm=TRUE)
+   # 0.001242069nos quedamos con este ya que es el mas pequeño
+   mean(a2^2,na.rm=TRUE)
+   #0.001720047 
+   mean(a3^2,na.rm=TRUE)
+   # 0.00173859
+   
+   
+   MAE:
+     mean(abs(a1),na.rm=TRUE)
+   # 0.02754047#elejimos este
+   mean(abs(a2),na.rm=TRUE)
+   # 0.03028987
+   mean(abs(a3),na.rm=TRUE)
+   # 0.03073129
+   
