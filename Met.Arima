@@ -1,0 +1,88 @@
+###########################################TAREA #########################################
+install.packages("tseries")
+require(foreign)
+require(fpp2)
+require(tseries)
+require(forecast)
+#####################EMPRESA MEXICANA ROTOPLAS#########################
+rot<-read.csv("C://Users//ALUMNO.SALAE-20.000//Documents//rotoplas.csv")
+rotoplas<-ts(rot,frequency = 254,start = 2018)
+#revisar si nuestra base es estacionaria
+#se aplica la prueba de raiz unitaria a traves de la  funcion
+#adf. test y esperamos que el p-value sea menor a 0.05
+adf.test(rotoplas)#no es estacionario por el p-value debe se menor a .05, muestra un p-value de .3321
+drotts<-diff(rotoplas)#aplicamos una diferenciacion para hacer estacionaria
+adf.test(drotts)# # con la diferenciacion nuestro p-value ahora es menor a 0.05 y se a vuelto estacionaria,p-value = 0.01
+
+#aplicamos correlogramas para definir p y q
+
+par(mfrow=c(1,2))#une dos correlogramas
+acf(drotts)#p= numero de lines que pase nuestro acf es nuestro autoregresivo
+pacf(drotts)# q= nos define nuestro promedio movil 
+#observamos que nuestros pacf es muestra un conportamiento simuso por lo que podemos definir una arima con p=0,d=1,q=1,2,3,4
+####ARIMAS
+
+modrot1<-Arima(rotoplas,order=c(0,1,1))#por el pacf que es mas sinuoso
+modrot1#AICc=316.04 
+modrot2<-Arima(rotoplas,order=c(0,1,2))
+modrot2# AICc=318.08 
+modrot3<-Arima(rotoplas,order=c(0,1,3))
+modrot3# AICc=320.03  
+modrot4<-Arima(rotoplas,order=c(0,1,4))
+modrot4# AICc=321.41
+
+#elegimos al menor AICC elegimos el modelo 1 AIKAIKE
+
+#vreificar si los residuales son ruido blanco, para eso se propone utilizar la prueba de ljung-Box y verificar que el
+#p-value sea mayor a .05, lo que indica que los residuales de la serie de tiempo son ruido blanco
+
+modres<- residuals (modrot1)
+Box.test(modres,lag=12,type="Ljung-Box")#P-value grande sugiere residuales ruido blanco,p-value = 0.9843
+
+#RESIDUALES RUIDO BLANCO
+
+mod1<-forecast(modrot1,h=12)
+plot(forecast(modrot1,h=12,include=18))#da los ultimos 18 datos y estima 12
+
+###############################EMPRESA EXTRANJERA ABERCROMBIE##############################
+aber<-read.csv("C:/Users/ALUMNO.SALAE-20.000/Documents/Abercrombie.csv")
+aberc<-ts(aber,frequency = 254,start = 2018)
+
+#adf. test y esperamos que el p-value sea menor a 0.05
+adf.test(aberc)#no es estacionario por el p-value debe se menor a .05, muestra un  p-value = 0.6528
+daberts<-diff(aberc)#aplicamos una diferenciacion para hacer estacionaria
+adf.test(daberts)# # con la diferenciacion nuestro p-value ahora es menor a 0.05 y se a vuelto estacionaria,p-value = 0.01
+
+#aplicamos correlogramas para definir p y q
+
+  par(mfrow=c(1,2))#une dos correlogramas
+  acf(daberts)#p= numero de lines que pase nuestro acf es nuestro autoregresivo
+  pacf(daberts)# q= nos define nuestro promedio movil 
+#observamos que nuestros pacf es muestra un conportamiento simuso por lo que podemos definir una arima con p=0,d=1,q=0,1,2,3,4
+####ARIMAS
+
+modaber1<-Arima(aberc,order=c(0,1,0))#por el pacf que es mas sinuoso
+modaber1#AICc=618.5 
+modaber2<-Arima(aberc,order=c(0,1,1))
+modaber2#AICc=620.38
+modaber3<-Arima(aberc,order=c(0,1,2))
+modaber3#  AICc=622.22  
+modaber4<-Arima(aberc,order=c(0,1,3))
+modaber4# AICc=623.88
+modaber5<-Arima(aberc,order=c(0,1,4))
+modaber5# AICc=622.04 
+
+#elegimos al menor AICC elegimos el modelo 1 AIKAIKE
+
+#vreificar si los residuales son ruido blanco, para eso se propone utilizar la prueba de ljung-Box y verificar que el
+#p-value sea mayor a .05, lo que indica que los residuales de la serie de tiempo son ruido blanco
+
+modres<- residuals (modaber1)
+Box.test(modres,lag=12,type="Ljung-Box")#P-value grande sugiere residuales ruido blanco,p-value = 0.5998
+
+#RESIDUALES RUIDO BLANCO
+
+mod1<-forecast(modaber1,h=12)
+plot(forecast(modaber1,h=12,include=18))#da los ultimos 18 datos y estima 12
+
+
